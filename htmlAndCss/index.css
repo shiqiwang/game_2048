@@ -3,4 +3,8 @@ td {
     height: 50px;
     width: 50px;
     border: 2px solid #808080;
+    text-align: center;
+    color: rgb(00, 00, 00);
+    font-size: 16px;
+    font-weight: bold;
 }
