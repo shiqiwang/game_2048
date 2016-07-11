@@ -7,6 +7,7 @@ window.addEventListener("load", function () {
 
 document.addEventListener("keydown", function (event) {
     console.log(event.keyCode);
+    event.preventDefault();
     if (event.keyCode == 37) {
         arrayToDisplay(moveLeft());
     } else if (event.keyCode == 38) {
@@ -16,17 +17,38 @@ document.addEventListener("keydown", function (event) {
     } else if (event.keyCode == 40) {
         arrayToDisplay(moveDown());
     }
+    if (isGameOver()) {
+        alert("game over!");
+    }
 });
 
-let td = document.getElementsByTagName("td");
+let reset = document.getElementById("newGameBtn");
+reset.addEventListener("click", newGame);
+
+let td = document.getElementsByClassName("td");
 let tdLen = td.length;
+let scoreDisplay = document.getElementById("score");
 let table_2048 = [
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0
-];//16
+];//init the 2048 table
+//init the score
+let score = 0;
 
+//init the table by clicking the new game button
+function newGame() {
+    score = 0;
+    table_2048 = [
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0
+    ];
+    setRandomNumAndPos();
+    arrayToDisplay(table_2048);
+}
 //void
 //after some operation, a new number appear 
 function setRandomNumAndPos() {
@@ -50,15 +72,80 @@ function setRandomNumAndPos() {
 
 // set every td's background color, color changes by number
 function setTdColor(td) {
-    let dataNum = Number(td.getAttribute("data-number"));
-    if(dataNum != 0) {
-        let colorDivisor = 220 - 10 * (Math.log2(dataNum) - 1);
-        td.style.backgroundColor = "rgb(255," + colorDivisor + "," + colorDivisor + ")";
+    let dataNum = Number(td.getAttribute("data-number")); 
+    switch (dataNum) {
+        case 0:
+            td.style.backgroundColor = "rgb(205, 192, 180)";
+            break;
+        case 2:
+            td.style.backgroundColor = "rgb(238, 228, 218)";
+            td.style.color = "#776e65";
+            td.style.fontSize = "40px";
+            break;
+        case 4:
+            td.style.backgroundColor = "rgb(237, 224, 200)";
+            td.style.color = "#776e65";
+            td.style.fontSize = "40px";
+            break;
+        case 8:
+            td.style.backgroundColor = "rgb(242, 177, 121)";
+            td.style.color = "#fff";
+            td.style.fontSize = "40px";
+            break;
+        case 16:
+            td.style.backgroundColor = "rgb(245, 149, 99)";
+            td.style.color = "#fff";
+            td.style.fontSize = "40px";
+            break;
+        case 32:
+            td.style.backgroundColor = "rgb(246, 124, 95)";
+            td.style.color = "#fff";
+            td.style.fontSize = "40px";
+            break;
+        case 64:
+            td.style.backgroundColor = "rgb(246, 94, 59)";
+            td.style.color = "#fff";
+            td.style.fontSize = "40px";
+            break;
+        case 128:
+            td.style.backgroundColor = "rgb(237, 207, 114)";
+            td.style.color = "#fff";
+            td.style.fontSize = "40px";
+            break;
+        case 256:
+            td.style.backgroundColor = "rgb(237, 204, 97)";
+            td.style.color = "#fff";
+            break;
+        case 512:
+            td.style.backgroundColor = "rgb(237, 200, 80)";
+            td.style.color = "#fff";
+            td.style.fontSize = "40px";
+            break;
+        case 1024:
+            td.style.backgroundColor = "rgb(237, 197, 63)";
+            td.style.color = "#fff";
+            td.style.fontSize = "28px";
+            break;
+        case 2048:
+            td.style.backgroundColor = "rgb(237, 194, 46)";
+            td.style.color = "#fff";
+            td.style.fontSize = "28px";
+            break;
+        case 4096:
+            td.style.backgroundColor = "rgb(255, 61, 61)";
+            td.style.color = "#fff";
+            td.style.fontSize = "28px";
+            break;
+        default:
+            td.style.backgroundColor = "rgb(255, 29, 30)";
+            td.style.color = "#fff";
+            td.style.fontSize = "28px";
     }
 }
 
 // return table_2048
 function moveLeft() {
+    let copyTable_2048 = table_2048.slice();
     for (let i = 0; i < table_2048.length; i += 4) {
         let index = i;
         let current;
@@ -84,6 +171,7 @@ function moveLeft() {
             next = findNextNoneZero();
             if (current === next) {
                 results.push(current * 2);
+                score = score + current * 2;
                 next = 0;
             } else {
                 results.push(current);
@@ -93,11 +181,14 @@ function moveLeft() {
             table_2048[k] = results[k - i] || 0;
         }
     }
-    setRandomNumAndPos();
+    if (table_2048.toString() != copyTable_2048.toString()) {
+        setRandomNumAndPos();
+    }
     return table_2048;
 }
 
 function moveRight() {
+    let copyTable_2048 = table_2048.slice();
     for (let i = 0; i < table_2048.length; i += 4) {
         let index = i + 3;
         let current;
@@ -121,6 +212,7 @@ function moveRight() {
             previous = findpreviousnonezero();
             if (current == previous) {
                 results.push(current * 2);
+                score = score + current * 2;
                 previous = 0;
             } else {
                 results.push(current);
@@ -135,11 +227,14 @@ function moveRight() {
             table_2048[j] = temp[j - i];
         }
     }
-    setRandomNumAndPos();
+    if (table_2048.toString() != copyTable_2048.toString()) {
+        setRandomNumAndPos();
+    }
     return table_2048;
 }
 
 function moveUp() {
+    let copyTable_2048 = table_2048.slice();
     for (let i = 0; i < 4; i++) {
         let current;
         let next;
@@ -163,6 +258,7 @@ function moveUp() {
             next = findNextNoneZero();
             if (current == next) {
                 results.push(2 * current);
+                score = score + current * 2;
                 next = 0;
             } else {
                 results.push(current);
@@ -172,10 +268,14 @@ function moveUp() {
             table_2048[k] = results[(k - i) / 4] || 0;
         }
     }
-    setRandomNumAndPos();
+    if (table_2048.toString() != copyTable_2048.toString()) {
+        setRandomNumAndPos();
+    }
     return table_2048;
 }
+
 function moveDown() {
+    let copyTable_2048 = table_2048.slice();
     for (let i = 0; i < 4; i++) {
         let current;
         let previous;
@@ -199,6 +299,7 @@ function moveDown() {
             previous = findPreviousNoneZero();
             if (current == previous) {
                 results.push(2 * current);
+                score = score + current * 2;
                 previous = 0;
             } else {
                 results.push(current);
@@ -214,10 +315,11 @@ function moveDown() {
             u++;
         }
     }
-    setRandomNumAndPos();
+    if (table_2048.toString() != copyTable_2048.toString()) {
+        setRandomNumAndPos();
+    }
     return table_2048;
 }
-
 // fill the table_2048 to single td
 function arrayToDisplay(table_2048) {
     console.log(table_2048);
@@ -237,4 +339,31 @@ function arrayToDisplay(table_2048) {
             setTdColor(td[j]);
         }
     }
+    scoreDisplay.innerHTML = score;
+}
+//return true
+function isGameOver() {
+    // if there is at least one zero, it won't end
+    for (let i = 0; i < table_2048.length; i++) {
+        if (table_2048[i] == 0) {
+            return false;
+        }
+    }
+    //compare the number to it's next one 
+    for (let i = 0; i < 16; i += 4) {
+        for (let j = i; j < i + 3; j++) {
+            if (table_2048[j] == table_2048[j + 1]) {
+                return false;
+            }
+        }
+    }
+    //compare the number to which is below it
+    for (let i = 0; i < 12; i += 4) {
+        for (let j = i; j < i + 4; j++) {
+            if (table_2048[j] == table_2048[j + 4]) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
